@@ -1,30 +1,61 @@
-// complete the js code
 const fetchButton = document.getElementById("fetch-button");
 const resultsDiv = document.getElementById("results");
 
 const cache = new Map();
+const cacheDuration = 60000; // 1 minute in milliseconds
 
 const fetchData = async () => {
-  // implement the caching here and store data in cache variable
+  const cacheKey = "apiData";
+  const cachedData = cache.get(cacheKey);
+  const currentTime = Date.now();
 
+  // Check if data is cached and still valid
+  if (cachedData && currentTime - cachedData.timestamp < cacheDuration) {
+    console.log("Serving data from cache");
+    return cachedData.data;
+  }
+
+  // If no valid cache, make API call
   console.log("Making API call");
-  const response = await fetch("https://opentdb.com/api.php?amount=3");
-  const data = await response.json();
 
-  cache.set(cacheKey, {
-    timestamp: Date.now(),
-    data: data,
-  });
+  const options = {
+    method: "GET",
+    headers: {
+      "X-RapidAPI-Key": "c3a9a6b376msh528c0d78a1c317ap1759efjsn28df182c8b4f",
+      "X-RapidAPI-Host": "financialmarketdata.p.rapidapi.com",
+    },
+  };
 
-  return data;
+  try {
+    const response = await fetch(
+      "https://financialmarketdata.p.rapidapi.com/api/v3/stock/list",
+      options
+    );
+    const data = await response.json();
+
+    // Store the response in cache with the current timestamp
+    cache.set(cacheKey, {
+      timestamp: currentTime,
+      data: data,
+    });
+
+    return data;
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
 };
 
 const displayData = (data) => {
-  const question = data.results[0].question;
-  resultsDiv.textContent = question;
+  // Display a part of the API data in the results div (adjust based on API response structure)
+  const stocks = data.slice(0, 5); // Display first 5 stocks (or whatever data structure API returns)
+  resultsDiv.innerHTML = stocks
+    .map((stock) => `<p>${stock.symbol}: ${stock.name}</p>`)
+    .join("");
 };
 
 fetchButton.addEventListener("click", async () => {
   const data = await fetchData();
-  displayData(data);
+  if (data) {
+    displayData(data);
+  }
 });
