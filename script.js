@@ -1,6 +1,5 @@
 const fetchButton = document.getElementById("fetch-button");
 const resultsDiv = document.getElementById("results");
-
 const cache = new Map();
 const cacheDuration = 60000; // 1 minute in milliseconds
 
@@ -17,7 +16,6 @@ const fetchData = async () => {
 
   // If no valid cache, make API call
   console.log("Making API call");
-
   const options = {
     method: "GET",
     headers: {
@@ -46,8 +44,8 @@ const fetchData = async () => {
 };
 
 const displayData = (data) => {
-  // Display a part of the API data in the results div (adjust based on API response structure)
-  const stocks = data.slice(0, 5); // Display first 5 stocks (or whatever data structure API returns)
+  // Display the first 5 stocks in the results div
+  const stocks = data.slice(0, 5);
   resultsDiv.innerHTML = stocks
     .map((stock) => `<p>${stock.symbol}: ${stock.name}</p>`)
     .join("");
